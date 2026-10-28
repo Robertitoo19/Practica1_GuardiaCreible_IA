@@ -1,0 +1,39 @@
+
+══════════════════════════════════════════════════════════
+ VERSIÓN 1 — con Sequence (la intuitiva… y equivocada)
+══════════════════════════════════════════════════════════
+t= 0  ve=False  hace: Patrullar               raíz: Running
+t= 1  ve=False  hace: Patrullar               raíz: Running
+t= 2  ve=True   hace: Perseguir               raíz: Running
+t= 3  ve=True   hace: Perseguir               raíz: Running
+t= 4  ve=False  hace: Perseguir               raíz: Running
+t= 5  ve=False  hace: Perseguir               raíz: Running
+t= 6  ve=False  hace: Perseguir               raíz: Running
+t= 7  ve=False  hace: Perseguir               raíz: Running
+t= 8  ve=False  hace: Perseguir               raíz: Running
+t= 9  ve=True   hace: Perseguir               raíz: Running
+t=10  ve=False  hace: Perseguir               raíz: Running
+t=11  ve=False  hace: Perseguir               raíz: Running
+t=12  ve=False  hace: Perseguir               raíz: Running
+t=13  ve=False  hace: Perseguir               raíz: Running
+
+══════════════════════════════════════════════════════════
+ VERSIÓN 2 — con Monitor (la correcta)
+══════════════════════════════════════════════════════════
+t= 0  ve=False  hace: Patrullar               raíz: Running
+t= 1  ve=False  hace: Patrullar               raíz: Running
+t= 2  ve=True   hace: Perseguir               raíz: Running
+t= 3  ve=True   hace: Perseguir               raíz: Running
+t= 4  ve=False  hace: Ir al último punto      raíz: Running
+t= 5  ve=False  hace: Ir al último punto      raíz: Running
+t= 6  ve=False  hace: (nada en curso)         raíz: Success
+t= 7  ve=False  hace: Patrullar               raíz: Running
+t= 8  ve=False  hace: Patrullar               raíz: Running
+t= 9  ve=True   hace: Perseguir               raíz: Running
+t=10  ve=False  hace: Ir al último punto      raíz: Running
+t=11  ve=False  hace: Ir al último punto      raíz: Running
+t=12  ve=False  hace: (nada en curso)         raíz: Success
+t=13  ve=False  hace: Patrullar               raíz: Running
+
+Comparad el tick 4 en las dos versiones: es donde el
+jugador desaparece de la vista.

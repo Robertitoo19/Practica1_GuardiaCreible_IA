@@ -24,6 +24,9 @@ namespace UDIT.IA3.Guardia
     {
         // ── Las escribe la PERCEPCIÓN ──────────────────────────────────────
 
+        /// <summary>bool · Posición actual del jugador</summary>
+        public const string PosJugador = "posJugador";
+
         /// <summary>bool · ¿tengo al objetivo a la vista AHORA MISMO?</summary>
         public const string Visible = "visible";
 

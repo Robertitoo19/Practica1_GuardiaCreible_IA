@@ -7,7 +7,9 @@ public class EstadoPerseguir : State
 
     internal override void Enter()
     {
-        // qui va un bark (Alto ahí) y cambio de velocidad
+        // Bark: se dice una vez al empezar a perseguir. Es presentacion, no mueve ni percibe
+        GuardiaBarks bark = Agente.GetComponent<GuardiaBarks>();
+        if (bark != null) bark.Decir("¡Alto ahí!");
     }
 
     internal override void Execute()
@@ -20,7 +22,7 @@ public class EstadoPerseguir : State
         }
 
         // Lo vemos, el destino es donde esta ahora (escribe el sensor)
-        Pizarra.Set(ClavesBB.Destino, Pizarra.Get(ClavesBB.PosJugador, UnityEngine.Vector3.zero));
+        Pizarra.Set(ClavesBB.Destino, Pizarra.Get(ClavesBB.PosJugador, Vector3.zero));
         Pizarra.Set(ClavesBB.TieneDestino, true);
     }
 

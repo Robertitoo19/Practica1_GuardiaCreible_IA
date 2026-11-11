@@ -1392,9 +1392,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 819659237c419474482af93a29aae836, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.GuardiaAgente
-  Cerebro: 0
+  Cerebro: 1
   FrecuenciaDecision: 10
-  MostrarTraza: 0
+  MostrarTraza: 1
 --- !u!114 &587311028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2889,9 +2889,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 819659237c419474482af93a29aae836, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.GuardiaAgente
-  Cerebro: 0
+  Cerebro: 1
   FrecuenciaDecision: 10
-  MostrarTraza: 0
+  MostrarTraza: 1
 --- !u!114 &912337543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3657,6 +3657,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRuido
   VelocidadParaRuidoMaximo: 5
   IntensidadMaxima: 0.8
+  Suavizado: 10
   DibujarGizmo: 1
   Anillos: 3
   VelocidadPulso: 3

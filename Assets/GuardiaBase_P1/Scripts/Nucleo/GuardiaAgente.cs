@@ -113,7 +113,12 @@ namespace UDIT.IA3.Guardia
 
                 Trazador.Activo = MostrarTraza;
                 _decisor.Decidir(Pizarra);
-                if (MostrarTraza) UltimaTraza = _decisor.Traza;
+
+                if (MostrarTraza)
+                {
+                    UltimaTraza = _decisor.Traza;
+                    Debug.Log(UltimaTraza, this); // LÍNEA AÑADIDA PARA VERLO EN CONSOLA
+                }
             }
 
             // ── 3. ACTUAR ── la locomoción LEE el destino y mueve

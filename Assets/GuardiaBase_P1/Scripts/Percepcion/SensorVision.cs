@@ -33,49 +33,37 @@ namespace UDIT.IA3.Guardia
     public class SensorVision : MonoBehaviour, ISensor
     {
         [Header("Objetivo")]
-        [Tooltip("El jugador. Si lo dejáis vacío se busca por tag al arrancar.")]
         public Transform Objetivo;
         public string TagObjetivo = "Player";
 
         [Header("Cono de visión")]
         public float Alcance = 15f;
         [Range(0f, 180f)] public float AnguloVision = 60f;
-
-        [Tooltip("Desde dónde se mira. Si está vacío se usa el propio transform. " +
-                 "Poned aquí la cabeza: mirar desde los pies da resultados raros.")]
         public Transform Ojos;
-
-        [Tooltip("Qué capas TAPAN la visión. Marcad aquí las paredes. " +
-                 "Si dejáis esto en Nothing, no habrá oclusión y se notará.")]
         public LayerMask CapasQueOcluyen;
 
-        [Header("Medidor de sospecha — APARTADO A DEL ENUNCIADO")]
-        [Tooltip("Cuánto sube por segundo con evidencia máxima.")]
+        [Header("Puntos de raycast")]
+        public float[] AlturasRaycast = { 0.8f, 0f, -0.9f };
+
+        [Header("Medidor de sospecha")]
         public float VelocidadSubida = 0.8f;
-
-        [Tooltip("Cuánto baja por segundo sin ver nada. Debe ser MUY inferior " +
-                 "a la de subida: subir en 1-2 s, olvidar en 10-15 s.")]
         public float VelocidadBajada = 0.08f;
-
-        [Tooltip("Umbral tranquilo → sospecha (al subir).")]
         [Range(0f, 1f)] public float UmbralSospecha = 0.35f;
-
-        [Tooltip("Umbral sospecha → alerta (al subir).")]
         [Range(0f, 1f)] public float UmbralAlerta = 0.8f;
-
-        [Tooltip("Cuánto hay que bajar por debajo del umbral para volver atrás. " +
-                 "Sin esto el guardia parpadea entre estados. Es la HISTÉRESIS.")]
         [Range(0f, 0.5f)] public float Histeresis = 0.1f;
 
-        // Estado interno del sensor. Lo publica en la pizarra al final de Percibir.
+        [Header("Depuración")]
+        public bool DibujarRaycasts = true;
+
         private float _sospecha;
         private NivelSospecha _nivel = NivelSospecha.Tranquilo;
         private bool _visiblePrevio;
 
-        /// <summary>Solo para los gizmos: si la última comprobación dio positivo.</summary>
         public bool VisibleAhora { get; private set; }
         public float SospechaActual { get { return _sospecha; } }
         public NivelSospecha NivelActual { get { return _nivel; } }
+        public int RaycastsLlegados { get; private set; }
+        public float UltimaEvidencia { get; private set; }
 
         private void Awake()
         {
@@ -88,133 +76,120 @@ namespace UDIT.IA3.Guardia
             }
         }
 
-        // ───────────────────────────────────────────────────────────────────
-        //  EL CICLO DE PERCEPCIÓN
-        // ───────────────────────────────────────────────────────────────────
-
         public void Percibir(Blackboard bb)
         {
-            if (Objetivo == null) return;
+            if (Objetivo == null)
+            {
+                float evAudioSolo = bb.Get(ClavesBB.RuidoIntensidad, 0f);
+                ActualizarSospecha(evAudioSolo, Time.deltaTime);
+                VisibleAhora = false;
+                _visiblePrevio = false;
+                bb.Set(ClavesBB.Visible, false);
+                bb.Set(ClavesBB.Sospecha, _sospecha);
+                bb.Set(ClavesBB.Nivel, _nivel);
+                return;
+            }
 
-            // ── ¿Lo veo? ────────────────────────────────────────────────────
-            bool visible = ComprobarVision();
+            int llegados;
+            bool visible = ComprobarVision(out llegados);
             VisibleAhora = visible;
+            RaycastsLlegados = llegados;
 
-            // ── El medidor ──────────────────────────────────────────────────
-            ActualizarSospecha(visible, Time.deltaTime);
+            float evidenciaVisual = visible ? CalcularEvidencia(llegados) : 0f;
+            float evidenciaAudio = bb.Get(ClavesBB.RuidoIntensidad, 0f);
+            float evidencia = Mathf.Max(evidenciaVisual, evidenciaAudio);
+            UltimaEvidencia = evidencia;
+            ActualizarSospecha(evidencia, Time.deltaTime);
 
-            // ── Publicar en la pizarra ──────────────────────────────────────
+            if (!visible && _nivel == NivelSospecha.Alerta)
+                _nivel = NivelSospecha.Sospecha;
+
             bb.Set(ClavesBB.Visible, visible);
             bb.Set(ClavesBB.Sospecha, _sospecha);
             bb.Set(ClavesBB.Nivel, _nivel);
 
-            // La última posición conocida se escribe EN EL INSTANTE en que se
-            // pierde el contacto. Ni antes (aún lo veo) ni después (ya no sé
-            // dónde estaba).
             if (visible)
             {
                 bb.Set(ClavesBB.UltimaPos, Objetivo.position);
                 bb.Set(ClavesBB.TieneUltimaPos, true);
+                bb.Set(ClavesBB.PosJugador, Objetivo.position);
             }
             else if (_visiblePrevio)
             {
                 bb.Set(ClavesBB.UltimaPos, Objetivo.position);
                 bb.Set(ClavesBB.TieneUltimaPos, true);
+                bb.Set(ClavesBB.PosJugador, Objetivo.position);
                 bb.Set(ClavesBB.VecesPerdido, bb.Get(ClavesBB.VecesPerdido, 0) + 1);
             }
 
             _visiblePrevio = visible;
         }
 
-        // ───────────────────────────────────────────────────────────────────
-        //  LAS TRES ETAPAS
-        // ───────────────────────────────────────────────────────────────────
-
-        private bool ComprobarVision()
+        private bool ComprobarVision(out int llegados)
         {
-            // ETAPA 1 · ALCANCE ✅
-            // Comparamos distancias al cuadrado para ahorrarnos la raíz.
+            llegados = 0;
+
             Vector3 haciaObjetivo = Objetivo.position - Ojos.position;
 
             if (haciaObjetivo.sqrMagnitude > Alcance * Alcance) return false;
 
-            // ETAPA 2 · ÁNGULO ❌ TODO
-            //
-            // Comprobad que el objetivo cae dentro del cono de AnguloVision
-            // grados alrededor de Ojos.forward.
-            //
-            // Pista: Vector3.Angle(Ojos.forward, haciaObjetivo) <= AnguloVision * 0.5f
-            // Cuidado con el 0.5: AnguloVision es el cono COMPLETO.
-            // Y cuidado con la componente Y si vuestro suelo no es plano.
+            float angulo = Vector3.Angle(Ojos.forward, haciaObjetivo);
+            if (angulo > AnguloVision * 0.5f) return false;
 
-            // ETAPA 3 · OCLUSIÓN ❌ TODO
-            //
-            // Lanzad un Physics.Raycast desde Ojos.position hacia VARIOS puntos
-            // del objetivo, no solo hacia su centro. Con tres basta: cabeza
-            // (+1.6f en Y), torso (+0.9f) y pies (+0.1f) si el pivote está en
-            // los pies. La cápsula de Unity lo tiene en el CENTRO: con ella son
-            // +0.8f, 0f y -0.9f (README_Montaje, 3.3).
-            //
-            // Si CUALQUIERA de los tres llega sin chocar contra CapasQueOcluyen,
-            // el objetivo es visible. Devolved además cuántos han llegado: es
-            // un factor estupendo para el medidor (ver «visibilidad parcial»).
-            //
-            // Pista:
-            //   Physics.Raycast(Ojos.position, dir.normalized, dist, CapasQueOcluyen)
-            //   devuelve TRUE si ha chocado, es decir, si NO se ve.
+            if (AlturasRaycast == null || AlturasRaycast.Length == 0)
+            {
+                Debug.LogWarning(
+                    "[SensorVision] AlturasRaycast vacío en " + name +
+                    ": no se está comprobando oclusión multi-punto.", this);
+                llegados = 1;
+                return true;
+            }
 
-            return true;   // ← mientras no hagáis las etapas 2 y 3, ve a través de las paredes
+            for (int i = 0; i < AlturasRaycast.Length; i++)
+            {
+                Vector3 punto = Objetivo.position + Vector3.up * AlturasRaycast[i];
+                Vector3 dir = punto - Ojos.position;
+                float dist = dir.magnitude;
+
+                if (!Physics.Raycast(Ojos.position, dir.normalized, dist, CapasQueOcluyen))
+                    llegados++;
+            }
+
+            return llegados > 0;
         }
 
-        // ───────────────────────────────────────────────────────────────────
-        //  EL MEDIDOR DE SOSPECHA
-        // ───────────────────────────────────────────────────────────────────
-
-        private void ActualizarSospecha(bool visible, float dt)
+        private float CalcularEvidencia(int llegados)
         {
-            // TODO · APARTADO A.2 y A.3 del enunciado
-            //
-            // Ahora mismo esto es un INTERRUPTOR: 0 o 1, sin matices y sin
-            // memoria. Es justo lo que el enunciado os pide sustituir.
-            //
-            // Lo que tiene que hacer:
-            //
-            //  1) Si es visible, calcular la EVIDENCIA en [0,1] combinando al
-            //     menos TRES factores:
-            //        · distancia  — más cerca, más evidencia
-            //        · ángulo     — más centrado en el cono, más evidencia
-            //        · uno vuestro — iluminación, si se mueve, si va agachado,
-            //                        cuántos raycasts han llegado, tiempo
-            //                        continuado en el cono...
-            //
-            //     Y DECIDID si los combináis por PRODUCTO o por MEDIA. No es lo
-            //     mismo (sesión 4, «Producto o suma» de B2.1b): con el producto, un solo
-            //     factor a cero anula la detección; con la media, no. Es una
-            //     decisión de diseño y hay que justificarla en la memoria.
-            //
-            //  2) Subir:  _sospecha += evidencia * VelocidadSubida * dt
-            //     Bajar:  _sospecha -= VelocidadBajada * dt
-            //     ...y Mathf.Clamp01 al final. La ASIMETRÍA entre las dos
-            //     velocidades ES el comportamiento: sube en 1-2 s, olvida en
-            //     10-15 s.
-            //
-            //  3) Cruzar umbrales CON HISTÉRESIS (método de abajo).
+            Vector3 haciaObjetivo = Objetivo.position - Ojos.position;
 
-            _sospecha = visible ? 1f : 0f;          // ← interruptor. Sustituidlo.
+            float dist = haciaObjetivo.magnitude;
+            float fDist = Mathf.Clamp01(1f - dist / Alcance);
 
+            float angulo = Vector3.Angle(Ojos.forward, haciaObjetivo);
+            float semiCono = AnguloVision * 0.5f;
+            float fAng = semiCono > 0.0001f
+                                ? Mathf.Clamp01(1f - angulo / semiCono)
+                                : 1f;
+
+            int total = (AlturasRaycast != null && AlturasRaycast.Length > 0)
+                            ? AlturasRaycast.Length
+                            : 1;
+            float fVis = (float)llegados / total;
+
+            return fDist * fAng * fVis;
+        }
+
+        private void ActualizarSospecha(float evidencia, float dt)
+        {
+            if (evidencia > 0.01f)
+                _sospecha += evidencia * VelocidadSubida * dt;
+            else
+                _sospecha -= VelocidadBajada * dt;
+
+            _sospecha = Mathf.Clamp01(_sospecha);
             _nivel = ActualizarNivel(_sospecha, _nivel);
         }
 
-        /// <summary>
-        /// Umbrales con histéresis: para SUBIR de nivel hace falta pasar el
-        /// umbral; para BAJAR hace falta caer por debajo del umbral MENOS la
-        /// histéresis. Sin esto, un valor oscilando alrededor de 0,35 hace que
-        /// el guardia entre y salga de sospecha varias veces por segundo, y en
-        /// pantalla parece que le da un ataque.
-        ///
-        /// Este método OS LO DOY HECHO porque es fácil equivocarse y no es lo
-        /// interesante. Lo interesante es el medidor de arriba.
-        /// </summary>
         private NivelSospecha ActualizarNivel(float s, NivelSospecha actual)
         {
             switch (actual)
@@ -233,6 +208,33 @@ namespace UDIT.IA3.Guardia
                     break;
             }
             return actual;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!DibujarRaycasts) return;
+            if (Objetivo == null) return;
+            if (AlturasRaycast == null || AlturasRaycast.Length == 0) return;
+
+            Transform ojos = Ojos != null ? Ojos : transform;
+
+            for (int i = 0; i < AlturasRaycast.Length; i++)
+            {
+                Vector3 punto = Objetivo.position + Vector3.up * AlturasRaycast[i];
+                Vector3 dir = punto - ojos.position;
+                float dist = dir.magnitude;
+                if (dist < 0.001f) continue;
+
+                bool llega = !Physics.Raycast(ojos.position, dir.normalized,
+                                              dist, CapasQueOcluyen);
+
+                Gizmos.color = llega
+                    ? new Color(0.2f, 1f, 0.2f, 0.85f)
+                    : new Color(1f, 0.2f, 0.2f, 0.85f);
+
+                Gizmos.DrawLine(ojos.position, punto);
+                Gizmos.DrawWireSphere(punto, 0.07f);
+            }
         }
     }
 }

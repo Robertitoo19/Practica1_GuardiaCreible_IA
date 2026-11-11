@@ -1,0 +1,8 @@
+VelocidadSubida = 2.0
+VelocidadBajada = 0.3
+UmbralSospecha  = 0.35
+UmbralAlerta    = 0.8
+Histeresis      = 0.1
+
+
+SE SUBE LA VELOCIDAD DE BAJADA A 0.3 Y SE MANTIENE LA VELOCIDAD DE SUBIDA A 2.0

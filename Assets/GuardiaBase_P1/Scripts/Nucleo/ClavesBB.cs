@@ -24,7 +24,7 @@ namespace UDIT.IA3.Guardia
     {
         // ── Las escribe la PERCEPCIÓN ──────────────────────────────────────
 
-        /// <summary>bool · Posición actual del jugador</summary>
+        /// <summary>Vector3 posición actual del jugador (congelada en la última vista).</summary>
         public const string PosJugador = "posJugador";
 
         /// <summary>bool · ¿tengo al objetivo a la vista AHORA MISMO?</summary>
@@ -62,5 +62,10 @@ namespace UDIT.IA3.Guardia
 
         /// <summary>bool · alerta de grupo. La escribe OTRO guardia, con latencia.</summary>
         public const string AlertaDeGrupo = "alertaDeGrupo";
+
+        // Audio
+        public const string RuidoIntensidad = "ruidoIntensidad";
+        public const string RuidoPos = "ruidoPos";
+        public const string TieneRuido = "tieneRuido";
     }
 }

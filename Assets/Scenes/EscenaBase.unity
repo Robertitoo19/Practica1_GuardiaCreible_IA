@@ -1273,6 +1273,9 @@ GameObject:
   - component: {fileID: 587311028}
   - component: {fileID: 587311027}
   - component: {fileID: 587311026}
+  - component: {fileID: 587311032}
+  - component: {fileID: 587311033}
+  - component: {fileID: 587311034}
   - component: {fileID: 587311025}
   - component: {fileID: 587311024}
   - component: {fileID: 587311023}
@@ -1425,11 +1428,16 @@ MonoBehaviour:
   CapasQueOcluyen:
     serializedVersion: 2
     m_Bits: 8
-  VelocidadSubida: 0.8
+  AlturasRaycast:
+  - 0.8
+  - 0
+  - -0.9
+  VelocidadSubida: 2
   VelocidadBajada: 0.08
   UmbralSospecha: 0.35
   UmbralAlerta: 0.8
   Histeresis: 0.1
+  DibujarRaycasts: 1
 --- !u!114 &587311030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1467,6 +1475,56 @@ Transform:
   - {fileID: 786935274}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &587311032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587311022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22346b397d2170b4e8284c4ec2521401, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.GuardiaColor
+  Renderers:
+  - {fileID: 587311024}
+  ColorTranquilo: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  ColorSospecha: {r: 1, g: 0.85, b: 0.2, a: 1}
+  ColorAlerta: {r: 1, g: 0.2, b: 0.2, a: 1}
+  Suavizado: 0.18
+--- !u!114 &587311033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587311022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f98707ad4196de44995148f5c589518d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.RegistroSospecha
+  Grabar: 0
+  Fichero: sospechaGuardia2.csv
+  Intervalo: 0.1
+--- !u!114 &587311034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587311022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018e199493d57fc48a7578e5b381f5c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.SensorAudicion
+  AlcanceAuditivo: 12
+  UmbralMinimo: 0.05
+  VelocidadDecaimiento: 1.2
+  DibujarGizmo: 1
+  DibujarFuentesEnRango: 1
 --- !u!1 &602490456
 GameObject:
   m_ObjectHideFlags: 0
@@ -2574,6 +2632,7 @@ GameObject:
   - component: {fileID: 910278288}
   - component: {fileID: 910278287}
   - component: {fileID: 910278286}
+  - component: {fileID: 910278289}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2655,6 +2714,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910278289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910278285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29fb4e91f144bf24ab3a2a3556b6a710, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CamaraTerceraPersona
+  Objetivo: {fileID: 1036930512}
+  OffsetObjetivo: {x: 0, y: 1.5, z: 0}
+  Distancia: 5
+  DistanciaMin: 2
+  SensibilidadRaton: 2.5
+  PitchMin: -20
+  PitchMax: 70
+  CapasColision:
+    serializedVersion: 2
+    m_Bits: 0
+  RadioColision: 0.3
+  VelocidadRecuperacion: 20
+  BloquearCursor: 1
+  TeclaDesbloquear: 27
 --- !u!1 &912337536
 GameObject:
   m_ObjectHideFlags: 0
@@ -2669,6 +2754,9 @@ GameObject:
   - component: {fileID: 912337543}
   - component: {fileID: 912337542}
   - component: {fileID: 912337541}
+  - component: {fileID: 912337546}
+  - component: {fileID: 912337547}
+  - component: {fileID: 912337548}
   - component: {fileID: 912337539}
   - component: {fileID: 912337538}
   - component: {fileID: 912337537}
@@ -2837,11 +2925,16 @@ MonoBehaviour:
   CapasQueOcluyen:
     serializedVersion: 2
     m_Bits: 8
-  VelocidadSubida: 0.8
+  AlturasRaycast:
+  - 0.8
+  - 0
+  - -0.9
+  VelocidadSubida: 2
   VelocidadBajada: 0.08
   UmbralSospecha: 0.35
   UmbralAlerta: 0.8
   Histeresis: 0.1
+  DibujarRaycasts: 1
 --- !u!114 &912337545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2863,6 +2956,56 @@ MonoBehaviour:
   - {fileID: 890654723}
   PingPong: 0
   EmpezarPorElMasCercano: 1
+--- !u!114 &912337546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912337536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22346b397d2170b4e8284c4ec2521401, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.GuardiaColor
+  Renderers:
+  - {fileID: 912337538}
+  ColorTranquilo: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  ColorSospecha: {r: 1, g: 0.85, b: 0.2, a: 1}
+  ColorAlerta: {r: 1, g: 0.2, b: 0.2, a: 1}
+  Suavizado: 0.18
+--- !u!114 &912337547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912337536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f98707ad4196de44995148f5c589518d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.RegistroSospecha
+  Grabar: 0
+  Fichero: sospechaGuardia1.csv
+  Intervalo: 0.1
+--- !u!114 &912337548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912337536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018e199493d57fc48a7578e5b381f5c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UDIT.IA3.Guardia.SensorAudicion
+  AlcanceAuditivo: 12
+  UmbralMinimo: 0.05
+  VelocidadDecaimiento: 1.2
+  DibujarGizmo: 1
+  DibujarFuentesEnRango: 1
 --- !u!1 &928120848
 GameObject:
   m_ObjectHideFlags: 0
@@ -3352,6 +3495,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1036930512}
   - component: {fileID: 1036930513}
+  - component: {fileID: 1036930515}
+  - component: {fileID: 1036930514}
   - component: {fileID: 1036930511}
   - component: {fileID: 1036930510}
   - component: {fileID: 1036930509}
@@ -3495,7 +3640,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea6d8e0a757cd2c4ba204743d7eabe82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  velocidad: 5
+  Velocidad: 5
+  VelocidadRotacion: 12
+  Gravedad: -20
+--- !u!114 &1036930514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036930507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bd3b1004502564479910cf301f3a57f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRuido
+  VelocidadParaRuidoMaximo: 5
+  IntensidadMaxima: 0.8
+  DibujarGizmo: 1
+  Anillos: 3
+  VelocidadPulso: 3
+  RadioMaximo: 10
+--- !u!114 &1036930515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036930507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5b73d2bb10afd54d8b95e4eadc588ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FuenteRuido
+  Intensidad: 0.8
+  DuracionSegundos: 1
+  EmiteConstantemente: 0
 --- !u!1 &1092471852
 GameObject:
   m_ObjectHideFlags: 0

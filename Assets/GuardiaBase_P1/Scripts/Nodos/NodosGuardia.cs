@@ -25,7 +25,21 @@ namespace UDIT.IA3.Guardia
     // ───────────────────────────────────────────────────────────────────────
     public class NodoPerseguir : Node
     {
-        public NodoPerseguir() : base("Perseguir") { }
+        private readonly GuardiaAgente _agente;
+
+        public NodoPerseguir(GuardiaAgente agente) : base("Perseguir")
+        {
+            _agente = agente;
+        }
+
+        // Equivalente a EstadoPerseguir.Enter(): una vez, al empezar a perseguir
+        protected override void OnInitialize(Blackboard bb)
+        {
+            if (_agente == null) return;
+
+            GuardiaBarks bark = _agente.GetComponent<GuardiaBarks>();
+            if (bark != null) bark.Decir("¡Alto ahí!");
+        }
 
         protected override Status Update(Blackboard bb)
         {

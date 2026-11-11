@@ -64,7 +64,7 @@ namespace UDIT.IA3.Guardia
                 new Monitor("Perseguir",
                     new Condition("¿Alerta?", bb =>
                         bb.Get(ClavesBB.Nivel, NivelSospecha.Tranquilo) == NivelSospecha.Alerta),
-                    new NodoPerseguir()),
+                    new NodoPerseguir(_agente)),
 
                 // ── 2. SOSPECHA -> Investigar ──────────────────────────────
                 new Monitor("Investigar",
